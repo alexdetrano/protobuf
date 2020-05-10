@@ -508,6 +508,24 @@ class LIBPROTOBUF_EXPORT TextFormat {
                                    Message* output);
 
 
+    /* alex: these API were added in later protobuf version
+     * AllowUnknownField in v3.8.0
+     * AllowPartialMessage
+     * SetRecursionLimit
+     * */
+
+    // When an unknown field is met, parsing will fail if this option is set
+    // to false(the default). If true, unknown fields will be ignored and
+    // a warning message will be generated.
+    // Please aware that set this option true may hide some errors (e.g.
+    // spelling error on field name). Avoid to use this option if possible.
+    void AllowUnknownField(bool allow) { allow_unknown_field_ = allow; }
+
+    // Sets maximum recursion depth which parser can use. This is effectively
+    // the maximum allowed nesting of proto messages.
+    void SetRecursionLimit(int limit) { recursion_limit_ = limit; }
+    /* alex: end of custom changes */
+
     void AllowFieldNumber(bool allow) {
       allow_field_number_ = allow;
     }
@@ -533,6 +551,8 @@ class LIBPROTOBUF_EXPORT TextFormat {
     bool allow_field_number_;
     bool allow_relaxed_whitespace_;
     bool allow_singular_overwrites_;
+    // alex: added recursion limit
+    int recursion_limit_;
   };
 
 

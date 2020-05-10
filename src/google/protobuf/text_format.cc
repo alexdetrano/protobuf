@@ -225,7 +225,7 @@ class TextFormat::Parser::ParserImpl {
              bool allow_unknown_enum,
              bool allow_field_number,
              bool allow_relaxed_whitespace,
-             bool allow_partial)
+             bool allow_partial, int recursion_limit)
     : error_collector_(error_collector),
       finder_(finder),
       parse_info_tree_(parse_info_tree),
@@ -238,6 +238,7 @@ class TextFormat::Parser::ParserImpl {
       allow_unknown_enum_(allow_unknown_enum),
       allow_field_number_(allow_field_number),
       allow_partial_(allow_partial),
+      recursion_limit_(recursion_limit),
       had_errors_(false) {
     // For backwards-compatibility with proto1, we need to allow the 'f' suffix
     // for floats.
@@ -1148,6 +1149,7 @@ label_skip_parsing:
   const bool allow_field_number_;
   const bool allow_partial_;
   bool had_errors_;
+  int recursion_limit_;
 };
 
 #undef DO
@@ -1308,7 +1310,8 @@ TextFormat::Parser::Parser()
     allow_unknown_enum_(false),
     allow_field_number_(false),
     allow_relaxed_whitespace_(false),
-    allow_singular_overwrites_(false) {
+    allow_singular_overwrites_(false),
+    recursion_limit_(std::numeric_limits<int>::max()) {
 }
 
 TextFormat::Parser::~Parser() {}
@@ -1327,7 +1330,7 @@ bool TextFormat::Parser::Parse(io::ZeroCopyInputStream* input,
                     overwrites_policy,
                     allow_case_insensitive_field_, allow_unknown_field_,
                     allow_unknown_enum_, allow_field_number_,
-                    allow_relaxed_whitespace_, allow_partial_);
+                    allow_relaxed_whitespace_, allow_partial_, recursion_limit_);
   return MergeUsingImpl(input, output, &parser);
 }
 
@@ -1345,7 +1348,7 @@ bool TextFormat::Parser::Merge(io::ZeroCopyInputStream* input,
                     ParserImpl::ALLOW_SINGULAR_OVERWRITES,
                     allow_case_insensitive_field_, allow_unknown_field_,
                     allow_unknown_enum_, allow_field_number_,
-                    allow_relaxed_whitespace_, allow_partial_);
+                    allow_relaxed_whitespace_, allow_partial_, recursion_limit_);
   return MergeUsingImpl(input, output, &parser);
 }
 
@@ -1380,7 +1383,7 @@ bool TextFormat::Parser::ParseFieldValueFromString(
                     ParserImpl::ALLOW_SINGULAR_OVERWRITES,
                     allow_case_insensitive_field_, allow_unknown_field_,
                     allow_unknown_enum_, allow_field_number_,
-                    allow_relaxed_whitespace_, allow_partial_);
+                    allow_relaxed_whitespace_, allow_partial_, recursion_limit_);
   return parser.ParseField(field, output);
 }
 
