@@ -603,6 +603,10 @@ label_skip_parsing:
                            const Reflection* reflection,
                            const FieldDescriptor* field) {
 
+    if (--recursion_limit_ < 0) {
+        ReportError("Message is too deep");
+        return false;
+    }
     // If the parse information tree is not NULL, create a nested one
     // for the nested message.
     ParseInfoTree* parent = parse_info_tree_;
@@ -619,6 +623,7 @@ label_skip_parsing:
                         delimiter));
     }
 
+    ++recursion_limit_;
     // Reset the parse information tree.
     parse_info_tree_ = parent;
     return true;
